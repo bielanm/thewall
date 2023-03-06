@@ -41,8 +41,14 @@ poetry run python3 thewall/cli.py multithread --help
 ## WebApp
 ### With `docker-compose`
 ```
-    docker-compose up
+make dev
 ```
+or
+```
+docker-compose --profile dev up
+```
+Open [Swagger API](http://localhost:8000/redoc/)
+
 ### Without `docker-compose`
 * `pip install -r requirements.txt`
 * `poetry install`
@@ -77,3 +83,11 @@ There are 2 steps to use **The Wall** api:
 3. *OPTIONAL* Reset setup with DELETE:`/profiles/setup/reset`
 
 You can also check [Swagger API](http://localhost:8000/redoc/) to get more information about available methods.
+
+
+## Tests
+Run
+```
+make test
+```
+Or setup external database and run `pytest tests`. Don't forget about `djangoapp.settings`.

@@ -17,6 +17,9 @@ typer = "^0.7.0"
 drf-yasg = "^1.21.5"
 
 
+[tool.poetry.group.dev.dependencies]
+pytest-django = "^4.5.2"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

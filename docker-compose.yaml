@@ -17,6 +17,8 @@ services:
         condition: service_completed_successfully
     environment:
       - DJANGO_SETTINGS_MODULE=djangoapp.settings
+    profiles:
+      - dev
 
   dbmigration:
     image: thewall
@@ -33,6 +35,8 @@ services:
       - ./api:/app/api
       - ./thewall:/app/thewall
       - ./djangoapp:/app/djangoapp
+    profiles:
+      - dev
   
   db:
     image: postgres:15.2
@@ -61,5 +65,26 @@ services:
       - 5432:5432
     logging:
       driver: "none"
+    profiles:
+      - tests
+      - dev
 
+  tests:
+    image: thewall
+    build:
+      context: .
+      dockerfile: "Dockerfile"
+    command: bash -c "poetry run python3 -m django migrate && pytest tests/"
+    volumes:
+      - ./api:/app/api
+      - ./thewall:/app/thewall
+      - ./djangoapp:/app/djangoapp
+      - ./tests:/app/tests
+    environment:
+      - DJANGO_SETTINGS_MODULE=djangoapp.settings
+    depends_on:
+      db:
+        condition: service_healthy
+    profiles:
+      - tests
   
