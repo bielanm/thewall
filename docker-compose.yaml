@@ -1,0 +1,65 @@
+version: '3.9'
+services:
+  api:
+    image: thewall
+    build:
+      context: .
+      dockerfile: "Dockerfile"
+    command: ["poetry", "run", "python3", "-m", "django", "runserver", "0.0.0.0:8000"]
+    ports:
+      - 8000:8000
+    volumes:
+      - ./api:/app/api
+      - ./thewall:/app/thewall
+      - ./djangoapp:/app/djangoapp
+    depends_on:
+      dbmigration:
+        condition: service_completed_successfully
+    environment:
+      - DJANGO_SETTINGS_MODULE=djangoapp.settings
+
+  dbmigration:
+    image: thewall
+    build:
+      context: .
+      dockerfile: "Dockerfile"
+    command: ["poetry", "run", "python3", "-m", "django", "migrate"]
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DJANGO_SETTINGS_MODULE=djangoapp.settings
+    volumes:
+      - ./api:/app/api
+      - ./thewall:/app/thewall
+      - ./djangoapp:/app/djangoapp
+  
+  db:
+    image: postgres:15.2
+    healthcheck:
+      test: [
+        "CMD",
+        "psql",
+        "-U",
+        'postgres',
+        "-p",
+        "5432",
+        "-h",
+        "localhost",
+        "-c",
+        "select 42 as answer;",
+      ]
+      interval: 5s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: thewall
+    ports:
+      - 5432:5432
+    logging:
+      driver: "none"
+
+  
